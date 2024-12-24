@@ -92,7 +92,7 @@ def extract_char_lines(image, mask, char_height, column_index, output_dir, image
     if len(image.shape) == 2:
         image = np.stack([image] * 3, axis=-1)
 
-    base_name = os.path.splitext(image_file)[0]
+    base_name, ext = os.path.splitext(image_file)
     height_constant = 2.3
     height = int(height_constant * char_height)
     offset = char_height // 4
@@ -104,22 +104,23 @@ def extract_char_lines(image, mask, char_height, column_index, output_dir, image
     for idx, region in enumerate(sorted_regions):
         minr, minc, maxr, maxc = region.bbox
         width = maxc - minc
+        region_label = region.label
         
         # Create line image
         line_img = np.zeros((height, width, 3), dtype=np.float32)
         
         # Process each column
         for col in range(width):
-            # Get mask column and find first masked pixel
-            col_mask = mask[minr:maxr, minc + col]
-            top_pixel = next((i for i in range(len(col_mask)) if col_mask[i]), 0)
+            # Get labeled mask column and find first pixel matching region label
+            col_mask = labeled_mask[minr:maxr, minc + col]
+            top_pixel = next((i for i in range(len(col_mask)) if col_mask[i] == region_label), 0)
             
             top = minr + top_pixel - offset
             src_col = image[top:top + height, minc + col]
             line_img[:len(src_col), col] = src_col
         
         # Build output filename anc construct full path
-        out_filename = f"l_{base_name}_{column_index:03d}_{idx:03d}.png"
+        out_filename = f"l_{base_name}-{ext[1:]}_{column_index:03d}_{idx:03d}.png"
         out_path = os.path.join(output_dir, out_filename)
 
         # Calculate resize ratio
@@ -129,7 +130,7 @@ def extract_char_lines(image, mask, char_height, column_index, output_dir, image
         # Resize image with cubic interpolation and anti-aliasing
         resized_img = zoom(line_img, (ratio, ratio, 1), order=3, prefilter=True)
         resized_img = np.clip(resized_img, 0, 1)
-        
+
         # Save resized image
         plt.imsave(out_path, resized_img)
     
