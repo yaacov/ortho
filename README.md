@@ -1,4 +1,4 @@
-## OTHO
+## ORTHO
 
 Old Research Text Hebrew OCR
 
