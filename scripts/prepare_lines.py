@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import color, draw
 from skimage.measure import label, regionprops
+from scipy.ndimage import zoom
 
 # Allow import of data and model modules
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -76,6 +77,65 @@ def get_lines_mask(cimage, bboxes, char_height):
     return blank_image
 
 
+def extract_char_lines(image, mask, char_height, column_index, output_dir, image_file):
+    from skimage.measure import label, regionprops
+    import numpy as np
+    import matplotlib.pyplot as plt
+    
+    # Convert to float32 and normalize if needed
+    if image.dtype != np.float32:
+        image = image.astype(np.float32)
+    if image.max() > 1.0:
+        image /= 255.0
+    
+    # Ensure image has 3 color channels
+    if len(image.shape) == 2:
+        image = np.stack([image] * 3, axis=-1)
+
+    base_name = os.path.splitext(image_file)[0]
+    height_constant = 2.3
+    height = int(height_constant * char_height)
+    offset = char_height // 4
+
+    labeled_mask = label(mask)
+    regions = regionprops(labeled_mask)
+    sorted_regions = sorted(regions, key=lambda x: x.bbox[0])
+    
+    for idx, region in enumerate(sorted_regions):
+        minr, minc, maxr, maxc = region.bbox
+        width = maxc - minc
+        
+        # Create line image
+        line_img = np.zeros((height, width, 3), dtype=np.float32)
+        
+        # Process each column
+        for col in range(width):
+            # Get mask column and find first masked pixel
+            col_mask = mask[minr:maxr, minc + col]
+            top_pixel = next((i for i in range(len(col_mask)) if col_mask[i]), 0)
+            
+            top = minr + top_pixel - offset
+            src_col = image[top:top + height, minc + col]
+            line_img[:len(src_col), col] = src_col
+        
+        # Build output filename anc construct full path
+        out_filename = f"l_{base_name}_{column_index:03d}_{idx:03d}.png"
+        out_path = os.path.join(output_dir, out_filename)
+
+        # Calculate resize ratio
+        target_height = int(32 * height_constant)
+        ratio = target_height / line_img.shape[0]
+        
+        # Resize image with cubic interpolation and anti-aliasing
+        resized_img = zoom(line_img, (ratio, ratio, 1), order=3, prefilter=True)
+        resized_img = np.clip(resized_img, 0, 1)
+        
+        # Save resized image
+        plt.imsave(out_path, resized_img)
+    
+    return
+
+
 def process_and_visualize_image(image_file, input_dir, output_dir, model):
     input_path = os.path.join(input_dir, image_file)
 
@@ -87,45 +147,24 @@ def process_and_visualize_image(image_file, input_dir, output_dir, model):
     # Get columns and free memory
     column_bboxes = get_columns_bboxs(image, bboxes, char_height)
 
-    # Create overlay image and free original
-    if image.ndim == 2:  # Grayscale image
-        overlay_image = np.stack([image] * 3, axis=-1).astype(np.float32)
-    else:  # Color image
-        overlay_image = image.astype(np.float32)
-
-    if overlay_image.max() > 1.0:  # Check if normalization is needed
-        overlay_image /= 255
-
     for idx, column_bbox in enumerate(column_bboxes):
         minr, minc, maxr, maxc = column_bbox["bbox"]
 
         # Get sub-image and process
-        sub_image = overlay_image[minr:maxr, minc:maxc].copy()
+        sub_image = image[minr:maxr, minc:maxc].copy()
         clean_column_image = preprocess_image(sub_image)
 
         bboxes, _, char_height = process_and_classify_image(clean_column_image, model)
 
         # Get mask and free intermediate results
         mask = get_lines_mask(sub_image, bboxes, char_height)
+        
+        if np.any(mask):
+            # Extract character lines
+            extract_char_lines(sub_image, mask, char_height, idx, output_dir, image_file)
+
         del bboxes, clean_column_image, sub_image
         gc.collect()
-
-        if np.any(mask):
-            # Apply the mask to the overlay image
-            overlay_image = overlay_mask_on_image(
-                overlay_image.copy(), mask, "yellow", 0.7, minr, minc
-            )
-
-            # Draw rectangle on the overlay image
-            overlay_image = draw_rectangle_on_image(
-                overlay_image.copy(), (minr, minc), (maxr, maxc), color="red"
-            )
-
-    # Save result and cleanup
-    with plt.ioff():
-        plt.imsave(os.path.join(output_dir, f"l_{image_file}"), overlay_image)
-        plt.close("all")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Process images and overlay lines.")
@@ -142,7 +181,7 @@ def main():
     parser.add_argument(
         "--output_dir",
         required=False,
-        default="data/processed/img-lines",
+        default="data/processed/img-text-lines",
         help="Path to save the output images. Defaults to 'data/processed/lines'.",
     )
     parser.add_argument(
