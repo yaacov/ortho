@@ -1,6 +1,6 @@
 ## OTHO
 
-Old Texts Hebrew OCR
+Old Research Text Hebrew OCR
 
 ### TensorBoard Usage:
 
