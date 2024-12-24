@@ -1,5 +1,7 @@
 ## OTHO
 
+Old Texts Hebrew OCR
+
 ### TensorBoard Usage:
 
 To visualize the training progress, use TensorBoard:

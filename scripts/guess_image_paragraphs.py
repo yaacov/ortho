@@ -208,7 +208,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--input_dir",
-        required=True,
+        default="data/raw",
         help="Path to the input directory containing images.",
     )
     parser.add_argument(
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_dir",
         required=False,
-        default="data/processed/lines",
+        default="data/processed/img-paragraphs",
         help="Path to save the output images. Defaults to 'data/processed/lines'.",
     )
     parser.add_argument(

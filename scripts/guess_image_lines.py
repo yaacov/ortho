@@ -4,7 +4,6 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import color, draw
-from skimage.draw import rectangle_perimeter
 from skimage.measure import label, regionprops
 
 # Allow import of data and model modules
@@ -21,7 +20,6 @@ from utils.connect_horizontal_gaps import connect_horizontal_gaps
 from guess_image_paragraphs import get_columns_bboxs
 from utils.overlay_mask_on_image import overlay_mask_on_image
 from utils.load_image import preprocess_image
-from utils.draw_text_on_image import draw_text_on_image
 from utils.draw_rectangle_on_image import draw_rectangle_on_image
 import gc
 
@@ -78,50 +76,6 @@ def get_lines_mask(cimage, bboxes, char_height):
     return blank_image
 
 
-def draw_line_boxes(overlay_image, mask, column_offset, color="red"):
-    """Draw boxes and indices for each line in mask."""
-    # Check if overlay_image is too small
-    if overlay_image.shape[0] < 300 or overlay_image.shape[1] < 300:
-        return result
-    
-    # Create new image 
-    result = overlay_image.copy()
-    del overlay_image
-    gc.collect()
-
-    # Get connected components
-    labeled = label(mask)
-    regions = regionprops(labeled)
-    del labeled
-    gc.collect()
-
-    # Sort regions by vertical position
-    sorted_regions = sorted(regions, key=lambda r: r.bbox[0])
-    del regions
-    gc.collect()
-
-    # Draw box and index for each region
-    minr_offset, minc_offset = column_offset
-    for idx, region in enumerate(sorted_regions):
-        minr, minc, maxr, maxc = region.bbox
-
-        # Draw index with temp image
-        text_x = maxc + minc_offset + 4
-        text_y = (minr + maxr) // 2 + minr_offset + 24
-        
-        temp = draw_text_on_image(
-            result, str(idx), text_x, text_y, color=color, fontsize=24
-        )
-        del result
-        result = temp
-        gc.collect()
-
-    del sorted_regions
-    gc.collect()
-
-    return result
-
-
 def process_and_visualize_image(image_file, input_dir, output_dir, model):
     input_path = os.path.join(input_dir, image_file)
 
@@ -134,11 +88,17 @@ def process_and_visualize_image(image_file, input_dir, output_dir, model):
     column_bboxes = get_columns_bboxs(image, bboxes, char_height)
 
     # Create overlay image and free original
-    overlay_image = (
-        np.stack([image] * 3, axis=-1) if image.ndim == 2 else image.copy()
-    ).astype(np.float32) / 255
+    if image.ndim == 2:  # Grayscale image
+        overlay_image = np.stack([image] * 3, axis=-1).astype(np.float32)
+    else:  # Color image
+        overlay_image = image.astype(np.float32)
 
-    # Process each column
+    if overlay_image.max() > 1.0:  # Check if normalization is needed
+        overlay_image /= 255
+
+    # Initialize master mask
+    master_mask = np.zeros_like(overlay_image[..., 0], dtype=bool)
+
     for idx, column_bbox in enumerate(column_bboxes):
         minr, minc, maxr, maxc = column_bbox["bbox"]
 
@@ -154,31 +114,24 @@ def process_and_visualize_image(image_file, input_dir, output_dir, model):
         gc.collect()
 
         if np.any(mask):
-            # Direct function calls instead of lambdas
-            overlay_image = overlay_mask_on_image(
-                overlay_image.copy(), mask, "yellow", 0.5, minr, minc
-            )
+            # Combine masks
+            master_mask[
+                minr : minr + mask.shape[0], minc : minc + mask.shape[1]
+            ] |= mask
 
+            # Draw rectangle on the overlay image
             overlay_image = draw_rectangle_on_image(
                 overlay_image.copy(), (minr, minc), (maxr, maxc), color="red"
             )
 
-            """ overlay_image = draw_text_on_image(
-                overlay_image.copy(),
-                str(idx),
-                maxc - 36,
-                minr + 36,
-                color="yellow",
-                fontsize=24,
-            ) """
-
-            """ overlay_image = draw_line_boxes(
-                overlay_image.copy(), mask, (minr, minc), color="blue"
-            ) """
+    # Apply the master mask to the overlay image
+    overlay_image = overlay_mask_on_image(
+        overlay_image.copy(), master_mask, "yellow", 0.7
+    )
 
     # Save result and cleanup
     with plt.ioff():
-        plt.imsave(os.path.join(output_dir, f"processed_{image_file}"), overlay_image)
+        plt.imsave(os.path.join(output_dir, f"l_{image_file}"), overlay_image)
         plt.close("all")
 
 
@@ -186,13 +139,13 @@ def main():
     parser = argparse.ArgumentParser(description="Process images and overlay lines.")
     parser.add_argument(
         "--input_dir",
-        required=True,
+        default="data/raw",
         help="Path to the input directory containing images.",
     )
     parser.add_argument(
         "--output_dir",
         required=False,
-        default="data/processed/lines",
+        default="data/processed/img-lines",
         help="Path to save the output images. Defaults to 'data/processed/lines'.",
     )
     parser.add_argument(

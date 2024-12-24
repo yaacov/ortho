@@ -1,7 +1,8 @@
 import os
 import numpy as np
-from skimage import io, measure
+from skimage import io
 from skimage.transform import resize
+from skimage.measure import label, regionprops
 
 
 def save_glyphs(binary_image, output_path, prefix, target_height=32):
@@ -19,10 +20,10 @@ def save_glyphs(binary_image, output_path, prefix, target_height=32):
         os.makedirs(output_path)
 
     # Label connected components in the binary image
-    labeled_image = measure.label(binary_image, connectivity=2)
+    labeled_image = label(binary_image > 0.5, connectivity=2)
 
     # Get properties of labeled regions
-    regions = measure.regionprops(labeled_image)
+    regions = regionprops(labeled_image)
 
     # Iterate over each connected component and save it
     num_saved_components = _process_and_save_components(

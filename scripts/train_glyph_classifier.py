@@ -44,7 +44,9 @@ def train_model(root_dir, resume=False):
     # Initialize the model, loss function, and optimizer
     model = GlyphClassifier().to(device)
     if resume and os.path.exists(MODEL_PATH):
-        model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
+        model.load_state_dict(
+            torch.load(MODEL_PATH, weights_only=True, map_location=torch.device(device))
+        )
         print("Resuming training from saved model.")
 
     criterion = nn.CrossEntropyLoss()
