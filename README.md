@@ -19,7 +19,8 @@ python scripts/prepare_glyphs.py
 python scripts/test_glyph_classifier.py
 
 # Run a script to train glyph classifier
-# ! Requires classified glyphs as labeled examples, use test_glyph_classifier.py to label glyphs for training
+# ! Requires classified glyphs as labeled examples,
+#   use test_glyph_classifier.py to label glyphs for training
 python scripts/train_glyph_classifier.py
 
 # Run a script to test:
