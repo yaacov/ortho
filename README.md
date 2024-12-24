@@ -2,6 +2,37 @@
 
 Old Research Text Hebrew OCR
 
+### Usage:
+
+```sh
+# Install required python libraries
+make install
+
+# Run a script to test image cleaning
+python scripts/prepare_images.py
+
+# Run a script to test glyph cleaning
+python scripts/prepare_glyphs.py
+
+# Run a script to test glyph classifier
+python scripts/test_glyph_classifier.py
+
+# Run a script to test:
+# - find glyphs in page
+# - clasify text glyphs in page 
+python scripts/guess_image_glyphs.py 
+
+# Run a script to test:
+# - find glyphs in page
+# - clasify text paragraphs in page 
+python scripts/guess_image_paragraphs.py
+
+# Run a script to test:
+# - find glyphs in page
+# - clasify text lines in page
+python scripts/guess_image_lines.py
+```
+
 ### TensorBoard Usage:
 
 To visualize the training progress, use TensorBoard:
