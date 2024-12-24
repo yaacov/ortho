@@ -96,9 +96,6 @@ def process_and_visualize_image(image_file, input_dir, output_dir, model):
     if overlay_image.max() > 1.0:  # Check if normalization is needed
         overlay_image /= 255
 
-    # Initialize master mask
-    master_mask = np.zeros_like(overlay_image[..., 0], dtype=bool)
-
     for idx, column_bbox in enumerate(column_bboxes):
         minr, minc, maxr, maxc = column_bbox["bbox"]
 
@@ -114,20 +111,15 @@ def process_and_visualize_image(image_file, input_dir, output_dir, model):
         gc.collect()
 
         if np.any(mask):
-            # Combine masks
-            master_mask[
-                minr : minr + mask.shape[0], minc : minc + mask.shape[1]
-            ] |= mask
+            # Apply the mask to the overlay image
+            overlay_image = overlay_mask_on_image(
+                overlay_image.copy(), mask, "yellow", 0.7, minr, minc
+            )
 
             # Draw rectangle on the overlay image
             overlay_image = draw_rectangle_on_image(
                 overlay_image.copy(), (minr, minc), (maxr, maxc), color="red"
             )
-
-    # Apply the master mask to the overlay image
-    overlay_image = overlay_mask_on_image(
-        overlay_image.copy(), master_mask, "yellow", 0.7
-    )
 
     # Save result and cleanup
     with plt.ioff():
