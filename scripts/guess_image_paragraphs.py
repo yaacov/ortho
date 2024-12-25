@@ -225,8 +225,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max_files",
         type=int,
-        default=80,
-        help="Maximum number of files to process. Defaults to 80.",
+        default=None,
+        help="Maximum number of files to process.",
     )
 
     args = parser.parse_args()

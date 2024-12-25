@@ -61,6 +61,10 @@ def convert_to_grayscale(image):
     """
     if len(image.shape) == 2:  # Already grayscale
         return image
+    elif image.shape[2] == 4:  # RGBA
+        image = color.rgba2rgb(image)
+    
+    # RGB
     return color.rgb2gray(image)
 
 
