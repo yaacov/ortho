@@ -11,7 +11,6 @@ from datetime import datetime
 # Allow inport of data and model modules
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from data.glyph_classes import GLYPH_CLASSES
 from data.glyph_image_dataset import GlyphImageDataset
 from data.transform import CustomTransform
 from models.glyph_classifier import MODEL_PATH, GlyphClassifier

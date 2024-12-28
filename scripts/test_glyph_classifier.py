@@ -3,7 +3,6 @@ import sys
 import torch
 from skimage import io
 import os
-import random
 import shutil
 
 

@@ -1,7 +1,4 @@
 from skimage import morphology, transform
-import numpy as np
-
-from utils.morphology import thinning_to_height
 
 
 def connect_vertical_gaps(blank_image, char_height):

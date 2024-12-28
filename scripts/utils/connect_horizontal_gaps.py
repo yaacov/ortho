@@ -1,5 +1,4 @@
 from skimage import morphology, transform
-import numpy as np
 
 from utils.morphology import thinning_to_height
 

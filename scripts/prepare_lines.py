@@ -2,9 +2,7 @@ import argparse
 import os
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
 from skimage import color, draw
-from skimage.measure import label, regionprops
 from scipy.ndimage import zoom
 
 # Allow import of data and model modules
@@ -19,9 +17,7 @@ from utils.process_and_classify_image import (
 )
 from utils.connect_horizontal_gaps import connect_horizontal_gaps
 from guess_image_paragraphs import get_columns_bboxs
-from utils.overlay_mask_on_image import overlay_mask_on_image
 from utils.load_image import preprocess_image
-from utils.draw_rectangle_on_image import draw_rectangle_on_image
 import gc
 
 

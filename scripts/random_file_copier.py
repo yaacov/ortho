@@ -15,9 +15,11 @@ def get_files_in_directory(directory_path):
         list: List of filenames in directory.
     """
     return [
-        f for f in os.listdir(directory_path)
+        f
+        for f in os.listdir(directory_path)
         if os.path.isfile(os.path.join(directory_path, f))
     ]
+
 
 def copy_random_files(source_dir, target_dir, clean_dir, max_files, clear):
     """

@@ -3,8 +3,7 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import color, draw
-from skimage.measure import label, regionprops
+from skimage import draw
 
 # Allow import of data and model modules
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))

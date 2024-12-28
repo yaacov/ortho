@@ -1,6 +1,5 @@
 import sys
-from skimage import draw, color
-from skimage.measure import label, regionprops
+from skimage import draw
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -11,7 +10,6 @@ import os
 # Allow inport of data and model modules
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from data.glyph_classes import GLYPH_CLASSES, categorize_glyph_class
 from models.load_model import load_model
 from utils.get_image_files import get_image_files
 from utils.load_image import preprocess_image

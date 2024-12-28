@@ -6,7 +6,7 @@ import os
 # Allow inport of data and model modules
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from data.glyph_classes import GLYPH_CLASSES, categorize_glyph_class
+from data.glyph_classes import categorize_glyph_class
 
 
 def count_bboxes_in_components(blank_image, bboxes, min_count=1):

@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def overlay_mask_on_image(color_image, mask, mask_color, alpha, offset_r=0, offset_c=0):
