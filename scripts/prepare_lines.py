@@ -44,7 +44,7 @@ def get_lines_mask(cimage, bboxes, char_height):
         rr, cc = np.array([], dtype=int), np.array([], dtype=int)
 
         # For over-the-line fonts, start 1/3 font size below the top
-        if class_label == "12_lamed":
+        if class_label in ["12_lamed", "32_fused_lamed"]:
             top = minr + char_height // 3
             rr, cc = draw.rectangle(
                 start=(top, minc), extent=(rect_height, maxc - minc)

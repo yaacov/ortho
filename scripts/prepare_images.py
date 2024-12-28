@@ -56,7 +56,7 @@ def main() -> None:
     """
     parser = argparse.ArgumentParser(description="Process images.")
     parser.add_argument(
-        "--input-dir",
+        "--input_dir",
         type=str,
         default="data/raw",
         help="Directory containing input images to process. Default is 'data/raw'. This option is ignored if --input-file is provided.",
@@ -64,7 +64,7 @@ def main() -> None:
     parser.add_argument(
         "--input-file",
         type=str,
-        help="Path to a single input image to process. Overrides --input-dir if provided.",
+        help="Path to a single input image to process. Overrides --input_dir if provided.",
     )
     parser.add_argument(
         "--output-dir",

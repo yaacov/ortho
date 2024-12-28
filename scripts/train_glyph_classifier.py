@@ -6,6 +6,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 import os
+from datetime import datetime
 
 # Allow inport of data and model modules
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -26,6 +27,10 @@ BATCH_SIZE = 50
 LEARNING_RATE = 0.001
 PATIENCE = 5  # Number of epochs to wait before stopping if no improvement
 LOG_DIR = "logs/tensorboard/font_classifier"
+
+# Add constants at top
+CHECKPOINT_DIR = "checkpoints"
+SAVE_FREQUENCY = 10
 
 
 def train_model(root_dir, resume=False):
@@ -55,6 +60,10 @@ def train_model(root_dir, resume=False):
     # TensorBoard writer
     writer = SummaryWriter(log_dir=LOG_DIR)
 
+    # Before training loop
+    if not os.path.exists(CHECKPOINT_DIR):
+        os.makedirs(CHECKPOINT_DIR)
+
     for epoch in range(NUM_EPOCHS):
         model.train()
         running_loss = 0.0
@@ -82,6 +91,21 @@ def train_model(root_dir, resume=False):
         avg_loss = running_loss / len(train_loader)
         print(f"Epoch [{epoch + 1}/{NUM_EPOCHS}], Loss: {avg_loss:.4f}")
         writer.add_scalar("Average Loss per Epoch", avg_loss, epoch)
+
+        # Save checkpoint every N epochs
+        if (epoch + 1) % SAVE_FREQUENCY == 0:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            checkpoint_path = os.path.join(
+                CHECKPOINT_DIR, 
+                f"model_{timestamp}_epoch_{epoch+1}.pth"
+            )
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': avg_loss,
+            }, checkpoint_path)
+            print(f"Checkpoint saved: {checkpoint_path}")
 
         # Early stopping
         if avg_loss < EARLY_STOPPING_THRESHOLD:

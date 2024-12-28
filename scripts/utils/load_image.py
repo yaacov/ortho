@@ -78,8 +78,8 @@ def equalize_image(gray_image):
     Returns:
         ndarray: Equalized image.
     """
-    if gray_image.shape[0] < 300 or gray_image.shape[1] < 300:
-        print("Warning: Input image is too small for feature extraction")
+    if gray_image.shape[0] < 32 or gray_image.shape[1] < 92:
+        print("Warning: Input image is too small for feature extraction", gray_image.shape)
     return exposure.equalize_adapthist(gray_image)
 
 
@@ -101,8 +101,8 @@ def load_and_preprocess_image(image_path, resize_factor=1):
     else:
         gray_image = color.rgb2gray(image)
 
-    if gray_image.shape[0] < 300 or gray_image.shape[1] < 300:
-        print(f"Warning: Input image is too small for feature extraction")
+    if gray_image.shape[0] < 32 or gray_image.shape[1] < 92:
+        print(f"Warning: Input image is too small for feature extraction", gray_image.shape)
 
     equalized_image = exposure.equalize_adapthist(gray_image)
 

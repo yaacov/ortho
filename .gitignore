@@ -116,3 +116,5 @@ logs/tensorboard/*
 data/processed/**/*.jpg
 data/processed/**/*.png
 data/raw/*.jpg
+checkpoints/model_*
+checkpoints/weights_*

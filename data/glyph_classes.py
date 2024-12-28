@@ -30,6 +30,7 @@ GLYPH_CLASSES = [
     "27_tzadi_sofit",
     "30_broken",
     "31_fused",
+    "32_fused_lamed",
     "40_comma",
     "50_numbers",
     "60_english",
@@ -78,7 +79,7 @@ def categorize_glyph_class(glyph_class):
     # Check which list the font belongs to and return the corresponding value
     if glyph_class in regular_height_glyphs:
         return 0
-    elif glyph_class == "12_lamed":
+    elif glyph_class in ["12_lamed", "32_fused_lamed"]:
         return 1
     elif glyph_class in under_the_line_glyphs:
         return 2

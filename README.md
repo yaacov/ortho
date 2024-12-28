@@ -14,9 +14,16 @@ python scripts/prepare_images.py
 # Run a script to test glyph cleaning
 python scripts/prepare_glyphs.py
 
+# Run a script to test line cleanning
+python scripts/prepare_lines.py
+
 # Run a script to test glyph classifier
 # ! Requires clean glyphs, use prepare_glyphs.py to prepare the glyphs
 python scripts/test_glyph_classifier.py
+
+# Optional, after running the test glyph classifier,
+# copy a random selection of classified glyphs for manual review
+python scripts/random_file_copier.py
 
 # Run a script to train glyph classifier
 # ! Requires classified glyphs as labeled examples,
