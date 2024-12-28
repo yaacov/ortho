@@ -96,15 +96,17 @@ def train_model(root_dir, resume=False):
         if (epoch + 1) % SAVE_FREQUENCY == 0:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             checkpoint_path = os.path.join(
-                CHECKPOINT_DIR, 
-                f"model_{timestamp}_epoch_{epoch+1}.pth"
+                CHECKPOINT_DIR, f"model_{timestamp}_epoch_{epoch+1}.pth"
             )
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': avg_loss,
-            }, checkpoint_path)
+            torch.save(
+                {
+                    "epoch": epoch,
+                    "model_state_dict": model.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "loss": avg_loss,
+                },
+                checkpoint_path,
+            )
             print(f"Checkpoint saved: {checkpoint_path}")
 
         # Early stopping

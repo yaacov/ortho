@@ -63,7 +63,7 @@ def convert_to_grayscale(image):
         return image
     elif image.shape[2] == 4:  # RGBA
         image = color.rgba2rgb(image)
-    
+
     # RGB
     return color.rgb2gray(image)
 
@@ -79,7 +79,9 @@ def equalize_image(gray_image):
         ndarray: Equalized image.
     """
     if gray_image.shape[0] < 32 or gray_image.shape[1] < 92:
-        print("Warning: Input image is too small for feature extraction", gray_image.shape)
+        print(
+            "Warning: Input image is too small for feature extraction", gray_image.shape
+        )
     return exposure.equalize_adapthist(gray_image)
 
 
@@ -102,7 +104,10 @@ def load_and_preprocess_image(image_path, resize_factor=1):
         gray_image = color.rgb2gray(image)
 
     if gray_image.shape[0] < 32 or gray_image.shape[1] < 92:
-        print(f"Warning: Input image is too small for feature extraction", gray_image.shape)
+        print(
+            f"Warning: Input image is too small for feature extraction",
+            gray_image.shape,
+        )
 
     equalized_image = exposure.equalize_adapthist(gray_image)
 

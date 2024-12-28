@@ -81,13 +81,13 @@ def extract_char_lines(image, mask, char_height, column_index, output_dir, image
     from skimage.measure import label, regionprops
     import numpy as np
     import matplotlib.pyplot as plt
-    
+
     # Convert to float32 and normalize if needed
     if image.dtype != np.float32:
         image = image.astype(np.float32)
     if image.max() > 1.0:
         image /= 255.0
-    
+
     # Ensure image has 3 color channels
     if len(image.shape) == 2:
         image = np.stack([image] * 3, axis=-1)
@@ -100,25 +100,27 @@ def extract_char_lines(image, mask, char_height, column_index, output_dir, image
     labeled_mask = label(mask)
     regions = regionprops(labeled_mask)
     sorted_regions = sorted(regions, key=lambda x: x.bbox[0])
-    
+
     for idx, region in enumerate(sorted_regions):
         minr, minc, maxr, maxc = region.bbox
         width = maxc - minc
         region_label = region.label
-        
+
         # Create line image
         line_img = np.zeros((height, width, 3), dtype=np.float32)
-        
+
         # Process each column
         for col in range(width):
             # Get labeled mask column and find first pixel matching region label
             col_mask = labeled_mask[minr:maxr, minc + col]
-            top_pixel = next((i for i in range(len(col_mask)) if col_mask[i] == region_label), 0)
-            
+            top_pixel = next(
+                (i for i in range(len(col_mask)) if col_mask[i] == region_label), 0
+            )
+
             top = minr + top_pixel - offset
-            src_col = image[top:top + height, minc + col]
-            line_img[:len(src_col), col] = src_col
-        
+            src_col = image[top : top + height, minc + col]
+            line_img[: len(src_col), col] = src_col
+
         # Build output filename anc construct full path
         out_filename = f"l_{base_name}-{ext[1:]}_{column_index:03d}_{idx:03d}.png"
         out_path = os.path.join(output_dir, out_filename)
@@ -126,14 +128,14 @@ def extract_char_lines(image, mask, char_height, column_index, output_dir, image
         # Calculate resize ratio
         target_height = int(32 * height_constant)
         ratio = target_height / line_img.shape[0]
-        
+
         # Resize image with cubic interpolation and anti-aliasing
         resized_img = zoom(line_img, (ratio, ratio, 1), order=3, prefilter=True)
         resized_img = np.clip(resized_img, 0, 1)
 
         # Save resized image
         plt.imsave(out_path, resized_img)
-    
+
     return
 
 
@@ -159,13 +161,16 @@ def process_and_visualize_image(image_file, input_dir, output_dir, model):
 
         # Get mask and free intermediate results
         mask = get_lines_mask(sub_image, bboxes, char_height)
-        
+
         if np.any(mask):
             # Extract character lines
-            extract_char_lines(sub_image, mask, char_height, idx, output_dir, image_file)
+            extract_char_lines(
+                sub_image, mask, char_height, idx, output_dir, image_file
+            )
 
         del bboxes, clean_column_image, sub_image
         gc.collect()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Process images and overlay lines.")

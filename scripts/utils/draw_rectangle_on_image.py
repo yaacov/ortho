@@ -25,7 +25,7 @@ def draw_rectangle_on_image(image, start, end, color="red"):
     # Add alpha channel if image is RGBA
     if len(image.shape) == 3 and image.shape[2] == 4:
         rgb_color = (*rgb_color, 1.0)
-    
+
     # Get rectangle coordinates
     rr, cc = rectangle_perimeter(start=start, end=end)
     rr = np.clip(rr, 0, result.shape[0] - 1)

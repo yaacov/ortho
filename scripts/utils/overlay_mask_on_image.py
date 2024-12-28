@@ -30,11 +30,14 @@ def overlay_mask_on_image(color_image, mask, mask_color, alpha, offset_r=0, offs
 
     # Create a full-size mask with the same dimensions as the color image
     full_size_mask = np.zeros(color_image.shape[:2], dtype=bool)
-    full_size_mask[offset_r:offset_r + mask.shape[0], offset_c:offset_c + mask.shape[1]] = mask
+    full_size_mask[
+        offset_r : offset_r + mask.shape[0], offset_c : offset_c + mask.shape[1]
+    ] = mask
 
     # Convert color string to RGB if needed
     if isinstance(mask_color, str):
         import matplotlib.colors as mcolors
+
         mask_color = mcolors.to_rgb(mask_color)  # Convert to (R, G, B) tuple
 
     # Create an overlay of the mask color
@@ -44,7 +47,9 @@ def overlay_mask_on_image(color_image, mask, mask_color, alpha, offset_r=0, offs
 
     # Blend the color image with the overlay
     combined_image = np.where(
-        full_size_mask[..., None],  # Apply mask_color with alpha where full_size_mask is True
+        full_size_mask[
+            ..., None
+        ],  # Apply mask_color with alpha where full_size_mask is True
         (1 - alpha) * color_image + alpha * overlay,
         color_image,
     )
