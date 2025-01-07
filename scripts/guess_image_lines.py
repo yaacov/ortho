@@ -148,6 +148,12 @@ def process_and_visualize_image(
                 overlay_image.copy(), (minr, minc), (maxr, maxc), color="red"
             )
 
+    # Print diagnostic information
+    print(f"\nProcessing: {image_file}")
+    print(f"  Original size: {width}x{height}")
+    print(f"  Resize factor: {resize_factor:.2f}")
+    print(f"  Character height: {char_height} pixels")
+    
     # Save result
     with plt.ioff():
         plt.imsave(os.path.join(output_dir, f"l_{image_file}"), overlay_image)

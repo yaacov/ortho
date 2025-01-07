@@ -4,6 +4,10 @@ import sys
 import numpy as np
 from skimage import color, draw
 from scipy.ndimage import zoom
+import gc
+
+from skimage.measure import label, regionprops
+import matplotlib.pyplot as plt
 
 # Allow import of data and model modules
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -18,12 +22,10 @@ from utils.process_and_classify_image import (
 from utils.connect_horizontal_gaps import connect_horizontal_gaps
 from guess_image_paragraphs import get_columns_bboxs
 from utils.load_image import preprocess_image
-import gc
 
 
 def get_lines_mask(cimage, bboxes, char_height):
-    image = color.rgb2gray(cimage) if len(cimage.shape) == 3 else cimage
-    height, width = image.shape
+    height, width = cimage.shape[:2]
 
     # Create a blank image of the same size
     blank_image = np.zeros((height, width), dtype=np.uint8)
@@ -74,10 +76,6 @@ def get_lines_mask(cimage, bboxes, char_height):
 
 
 def extract_char_lines(image, mask, char_height, column_index, output_dir, image_file):
-    from skimage.measure import label, regionprops
-    import numpy as np
-    import matplotlib.pyplot as plt
-
     # Convert to float32 and normalize if needed
     if image.dtype != np.float32:
         image = image.astype(np.float32)
@@ -142,6 +140,12 @@ def process_and_visualize_image(image_file, input_dir, output_dir, model):
     image, _, bboxes, char_height, resize_factor, height, width = (
         load_process_and_classify_image(input_path, model)
     )
+
+    # Print diagnostic information
+    print(f"\nProcessing: {image_file}")
+    print(f"  Original size: {width}x{height}")
+    print(f"  Resize factor: {resize_factor:.2f}")
+    print(f"  Character height: {char_height} pixels")
 
     # Get columns and free memory
     column_bboxes = get_columns_bboxs(image, bboxes, char_height)

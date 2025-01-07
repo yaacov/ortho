@@ -48,7 +48,27 @@ def preprocess_image(image):
 
     return cleaned_image
 
+def ensure_rgb(image):
+    """
+    Convert any image to RGB format.
+    - If grayscale, create three identical channels
+    - If RGBA, convert to RGB
+    - If RGB, return as is
 
+    Args:
+        image (ndarray): Input image in any format (grayscale, RGB, or RGBA)
+
+    Returns:
+        ndarray: RGB image
+    """
+    if len(image.shape) == 2:  # Grayscale
+        return np.stack([image] * 3, axis=-1)
+    elif len(image.shape) == 3:
+        if image.shape[2] == 4:  # RGBA
+            return color.rgba2rgb(image)
+        elif image.shape[2] == 3:  # RGB
+            return image
+        
 def convert_to_grayscale(image):
     """
     Convert an image to grayscale if it is not already.
@@ -192,8 +212,8 @@ def imread_auto_rotate(image_path, resize_factor=1):
         print(f"Warning: Could not process Exif data. Error: {e}")
         corrected_image = raw_image
 
-    # Resize the image if resize_factor > 1
-    if resize_factor > 1:
+    # Resize the image if resize_factor != 1
+    if resize_factor != 1:
         height, width = corrected_image.shape[:2]
         new_height, new_width = int(height * resize_factor), int(width * resize_factor)
         corrected_image = transform.resize(

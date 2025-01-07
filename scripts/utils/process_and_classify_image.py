@@ -84,22 +84,23 @@ def process_and_classify_image(cleaned_image, model, bucket_size=10, min_glyph_s
 
 
 def load_process_and_classify_image(input_path, model):
+    target_char_height = 32
     resize_factor = 1
 
-    # Load and preprocess the image
+    # Load and preprocess the image with initial resize factor
     cleaned_image = load_image(input_path, resize_factor)
     bboxes, _, char_height = process_and_classify_image(cleaned_image, model)
 
-    if char_height <= 32:
-        resize_factor = 2
+    if char_height > 0:  # Only adjust if we found characters
+        # Calculate the resize factor needed to get characters close to target height
+        resize_factor = target_char_height / char_height
 
-        # Load the image resize if needed
+        # Load the image with the calculated resize factor
         image = imread_auto_rotate(input_path, resize_factor)
         cleaned_image = preprocess_image(image)
-
         bboxes, _, char_height = process_and_classify_image(cleaned_image, model)
     else:
-        # Load the image resize if needed
+        # If no characters were detected, use original image
         image = imread_auto_rotate(input_path, resize_factor)
 
     height, width = cleaned_image.shape[:2]

@@ -185,9 +185,11 @@ def process_and_visualize_image(image_file, input_dir, output_dir, model):
         load_process_and_classify_image(input_path, model)
     )
 
-    print(
-        f"Processing {image_file} [{height}, {width}] resize is {resize_factor} \nchar height is {char_height} found {len(bboxes)} fonts."
-    )
+    # Print diagnostic information
+    print(f"\nProcessing: {image_file}")
+    print(f"  Original size: {width}x{height}")
+    print(f"  Resize factor: {resize_factor:.2f}")
+    print(f"  Character height: {char_height} pixels")
 
     # Generate the output path
     output_path = os.path.join(output_dir, f"p_{image_file}")
