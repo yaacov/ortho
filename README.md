@@ -50,7 +50,7 @@ python scripts/guess_image_lines.py
 # - create line detection masks
 python scripts/prepare_line_masks.py
 
-# 
+# Test masks by overlaying masks on input images
 python scripts/overlay_masks.py
 ```
 
