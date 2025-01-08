@@ -44,6 +44,14 @@ python scripts/guess_image_paragraphs.py
 # - find glyphs in page
 # - clasify text lines in page
 python scripts/guess_image_lines.py
+
+# Run a script to create masks:
+# - resize images for uniform font size
+# - create line detection masks
+python scripts/prepare_line_masks.py
+
+# 
+python scripts/overlay_masks.py
 ```
 
 ### TensorBoard Usage:
